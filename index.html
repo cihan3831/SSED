@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Einfaches Formular mit Input-Typen</title>
+  <script src="https://cdn.jsdelivr.net/npm/parsleyjs"></script>
+</head>
+<body>
+ 
+  <h2>Formular mit verschiedenen Eingabefeldern</h2>
+ 
+  <form id="meinFormular" data-parsley-validate>
+   
+    <p><label>Name (Text): <input type="text" required></label></p>
+ 
+    <p><label>E-Mail: <input type="email" required></label></p>
+ 
+    <p><label>Passwort: <input type="password" required minlength="6"></label></p>
+ 
+    <p><label>Telefonnummer: <input type="tel" required></label></p>
+ 
+    <p><label>Geburtsdatum: <input type="date" required></label></p>
+ 
+    <p><label>Lieblingsfarbe: <input type="color"></label></p>
+ 
+    <p><label>Wähle eine Zahl (1–10): <input type="number" min="1" max="10" required></label></p>
+ 
+    <p><label>Wähle eine Datei: <input type="file" required></label></p>
+ 
+    <p><label>Website: <input type="url" required></label></p>
+ 
+    <p><label>Geschlecht:
+      <input type="radio" name="gender" required> Männlich
+      <input type="radio" name="gender"> Weiblich
+    </label></p>
+ 
+    <p><label>Newsletter abonnieren: <input type="checkbox"></label></p>
+ 
+    <p><label>Zeit wählen: <input type="time"></label></p>
+ 
+    <p><label>Woche wählen: <input type="week"></label></p>
+ 
+    <p><label>Suche: <input type="search"></label></p>
+ 
+    <p><label>Range (0–100): <input type="range" min="0" max="100"></label></p>
+ 
+    <p><input type="reset" value="Zurücksetzen"> <input type="submit" value="Absenden"></p>
+ 
+  </form>
+ 
+  <script>
+    // Wenn das Formular abgeschickt wird:
+    document.getElementById("meinFormular").addEventListener("submit", function(e) {
+      e.preventDefault(); // verhindert echtes Absenden
+      if ($(this).parsley().isValid()) {
+        alert("Formular erfolgreich geprüft!");
+      } else {
+        alert("Bitte überprüfe deine Eingaben!");
+      }
+    });
+  </script>
+ 
+</body>
+</html>
