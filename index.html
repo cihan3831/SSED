@@ -1,64 +1,221 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <title>Einfaches Formular mit Input-Typen</title>
-  <script src="https://cdn.jsdelivr.net/npm/parsleyjs"></script>
+<meta charset="UTF-8">
+<title>SSED Übung</title>
+<!-- jQuery & Parsley -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/parsleyjs"></script>
 </head>
 <body>
  
-  <h2>Formular mit verschiedenen Eingabefeldern</h2>
+  <h2>Formular mit erweiterten Prüfungen</h2>
  
-  <form id="meinFormular" data-parsley-validate>
-   
-    <p><label>Name (Text): <input type="text" required></label></p>
+  <form id="meinFormular" data-parsley-validate enctype="multipart/form-data">
  
-    <p><label>E-Mail: <input type="email" required></label></p>
+    <!-- Name -->
+<p>
+<label>Name (Text): 
+<input type="text" name="name" required 
+
+          data-parsley-pattern="^[A-Za-zÄÖÜäöüß\\s]+$"
+
+          data-parsley-pattern-message="Nur Buchstaben erlaubt.">
+</label>
+</p>
  
-    <p><label>Passwort: <input type="password" required minlength="6"></label></p>
+    <!-- E-Mail -->
+<p>
+<label>E-Mail: 
+<input type="email" name="email" required 
+
+          data-parsley-type="email"
+
+          data-parsley-pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+
+          data-parsley-pattern-message="Bitte eine gültige E-Mail-Adresse eingeben.">
+</label>
+</p>
  
-    <p><label>Telefonnummer: <input type="tel" required></label></p>
+    <!-- Passwort -->
+<p>
+<label>Passwort: 
+<input type="password" name="password" required 
+
+          minlength="7"
+
+          data-parsley-strongpassword
+
+          data-parsley-strongpassword-message="Passwort muss mindestens 7 Zeichen lang sein und darf nicht zu einfach sein.">
+</label>
+</p>
  
-    <p><label>Geburtsdatum: <input type="date" required></label></p>
+    <!-- Telefonnummer -->
+<p>
+<label>Telefonnummer: 
+<input type="tel" name="phone" required
+
+          data-parsley-pattern="^[0-9]{7,15}$"
+
+          data-parsley-pattern-message="Nur Zahlen (7–15 Ziffern) erlaubt.">
+</label>
+</p>
  
-    <p><label>Lieblingsfarbe: <input type="color"></label></p>
+    <!-- Geburtsdatum -->
+<p><label>Geburtsdatum: <input type="date" name="birthdate" required></label></p>
  
-    <p><label>Wähle eine Zahl (1–10): <input type="number" min="1" max="10" required></label></p>
+    <!-- Lieblingsfarbe -->
+<p><label>Lieblingsfarbe: <input type="color" name="color"></label></p>
  
-    <p><label>Wähle eine Datei: <input type="file" required></label></p>
+    <!-- Zahl -->
+<p><label>Wähle eine Zahl (1–10): <input type="number" name="number" min="1" max="10" required></label></p>
  
-    <p><label>Website: <input type="url" required></label></p>
+    <!-- Datei -->
+<p>
+<label>Wähle eine Datei (nur PDF, max. 30 MB): 
+<input type="file" name="file" required 
+
+          data-parsley-fileextension="pdf"
+
+          data-parsley-maxfilesize="30">
+</label>
+</p>
  
-    <p><label>Geschlecht:
-      <input type="radio" name="gender" required> Männlich
-      <input type="radio" name="gender"> Weiblich
-    </label></p>
+    <!-- Website -->
+<p>
+<label>Website: 
+<input type="url" name="url" required
+
+          data-parsley-pattern="^(https?:\\/\\/)?(www\\.)?[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}(\\/[^\\s]*)?$"
+
+          data-parsley-pattern-message="Bitte eine gültige URL eingeben (z. B. https://beispiel.de).">
+</label>
+</p>
+ 
+    <!-- Geschlecht -->
+<p>
+<label>Geschlecht:
+<input type="radio" name="gender" required> Männlich
+<input type="radio" name="gender"> Weiblich
+</label>
+</p>
  
     <p><label>Newsletter abonnieren: <input type="checkbox"></label></p>
+<p><label>Zeit wählen: <input type="time"></label></p>
+<p><label>Woche wählen: <input type="week"></label></p>
+<p><label>Suche: <input type="search"></label></p>
+<p><label>Range (0–100): <input type="range" min="0" max="100"></label></p>
  
-    <p><label>Zeit wählen: <input type="time"></label></p>
- 
-    <p><label>Woche wählen: <input type="week"></label></p>
- 
-    <p><label>Suche: <input type="search"></label></p>
- 
-    <p><label>Range (0–100): <input type="range" min="0" max="100"></label></p>
- 
-    <p><input type="reset" value="Zurücksetzen"> <input type="submit" value="Absenden"></p>
+    <p>
+<input type="reset" value="Zurücksetzen">
+<input type="submit" value="Absenden">
+</p>
  
   </form>
  
+  <!-- 🔻 Hier erscheint die Meldung -->
+<p id="formMessage" style="font-weight: bold;"></p>
+ 
   <script>
-    // Wenn das Formular abgeschickt wird:
-    document.getElementById("meinFormular").addEventListener("submit", function(e) {
-      e.preventDefault(); // verhindert echtes Absenden
-      if ($(this).parsley().isValid()) {
-        alert("Formular erfolgreich geprüft!");
-      } else {
-        alert("Bitte überprüfe deine Eingaben!");
+
+    // ======= Parsley Custom Validator für Dateiendung =======
+
+    window.Parsley.addValidator('fileextension', {
+
+      validateString: function(value, requirement, parsleyInstance) {
+
+        const file = parsleyInstance.$element[0].files[0];
+
+        if (!file) return false;
+
+        const extension = file.name.split('.').pop().toLowerCase();
+
+        return extension === requirement.toLowerCase();
+
+      },
+
+      messages: {
+
+        de: 'Nur Dateien mit der Endung .%s sind erlaubt.'
+
       }
+
     });
-  </script>
+ 
+    // ======= Parsley Custom Validator für Dateigröße (in MB) =======
+
+    window.Parsley.addValidator('maxfilesize', {
+
+      validateString: function(value, requirement, parsleyInstance) {
+
+        const file = parsleyInstance.$element[0].files[0];
+
+        if (!file) return false;
+
+        const maxBytes = requirement * 1024 * 1024;
+
+        return file.size <= maxBytes;
+
+      },
+
+      messages: {
+
+        de: 'Die Datei darf maximal %s MB groß sein.'
+
+      }
+
+    });
+ 
+    // ======= Parsley Custom Validator für starkes Passwort =======
+
+    window.Parsley.addValidator('strongpassword', {
+
+      validateString: function(value) {
+
+        const lowerValue = value.toLowerCase();
+
+        const weakList = ['123456', 'abcdef', 'password', 'passwort', 'qwerty', 'letmein'];
+
+        if (weakList.includes(lowerValue)) return false;
+ 
+        const strongRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]{7,}$/;
+
+        return strongRegex.test(value);
+
+      },
+
+      messages: {
+
+        de: 'Passwort muss mindestens 7 Zeichen lang sein und Buchstaben + Zahlen enthalten. Einfache Passwörter sind nicht erlaubt.'
+
+      }
+
+    });
+ 
+    // ======= Submit-Handler ohne Alert, mit Text unten =======
+
+    document.getElementById("meinFormular").addEventListener("submit", function(e) {
+
+      e.preventDefault();
+ 
+      const messageElement = document.getElementById("formMessage");
+ 
+      if ($(this).parsley().isValid()) {
+
+        messageElement.style.color = "green";
+
+        messageElement.textContent = "✔️ Formular erfolgreich geprüft!";
+
+      } else {
+
+        messageElement.style.color = "red";
+
+        messageElement.textContent = "⚠️ Bitte überprüfe deine Eingaben und korrigiere sie.";
+
+      }
+
+    });
+</script>
  
 </body>
 </html>
